@@ -4,10 +4,16 @@ from django.views import generic
 from django.core.mail import send_mail
 from . models import Post, Comment
 from . forms import EmailPostForm, CommentForm
+from taggit.models import Tag
 # Create your views here.
 
-def post_list(request):
+def post_list(request, tag_slug=None):
     object_list = Post.published.all()
+    tag = None
+
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        object_list = object_list.filter(tags__in=[tag])
     paginator = Paginator(object_list, 3) # 3 posts per page
     page = request.Get.get('page')
     try:
@@ -19,7 +25,7 @@ def post_list(request):
         # if page out of range deliver last page
         posts = paginator.page(paginator.num_pages)
 
-    return render(request, 'blog/post/post_list.html', {'page': page,'posts': posts})
+    return render(request, 'blog/post/post_list.html', {'page': page,'posts': posts, 'tag': tag})
 
 class PostList(generic.ListView):
     queryset = Post.published.all()
@@ -47,7 +53,7 @@ def post_detail(request,year,month,day,post):
     else:
         comment_form = CommentForm()
     return render(request, 'blog/post/post_detail.html', {'post': post, 'comments': comments, 'new_comment': new_comment,
-                                                          'comment_form': comment_form})
+                                                            'comment_form': comment_form})
 
 def post_share(request, post_id):
     # retrieve post by id
