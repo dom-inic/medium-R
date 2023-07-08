@@ -1,3 +1,4 @@
+{% load blog_tags %}
 {% load static %}
 <!DOCTYPE html>
 <html>
@@ -14,6 +15,22 @@
         <div id="sidebar">
             <h2>Medium-R</h2>
             <p>Medium respwaned </p>
+            <p> Total number of blogs written so far {% total_posts %}</p>
+            <h3> Latest Posts</h3>
+            {% show_latest_posts 3%}
+            <h3> Most Commented Posts</h3>
+            {% get_most_commented_posts as most_commented_posts%}
+            <ul>
+                {% for post in most_commented_posts %}
+                <li> 
+                    <a href="{{post.get_absolute_url}}"> {{post.title}}</a>
+                </li>
+                {% endfor %}
+            </ul>
+
+            <p>
+                <a href=" {% url 'blog:post_feed' %}"> Subscribe to our RSS feed</a>
+            </p>
         </div>
     </body>
 </html>
